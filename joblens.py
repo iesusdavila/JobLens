@@ -4,9 +4,7 @@ from langchain_groq import ChatGroq
 from langchain_core.messages import AIMessage, HumanMessage
 from dotenv import load_dotenv
 from langgraph.checkpoint.memory import MemorySaver
-from langgraph.prebuilt import ToolNode
 from vector_store_manager import CVEmbeddingManager
-import os
 
 load_dotenv()
 
@@ -17,13 +15,14 @@ class State(TypedDict):
     feedback: str
     summary: str
     person_is_postuled_to_job: bool
+    job_info: str
 
 llm = ChatGroq(model="llama-3.1-8b-instant")
 
 thread_config = {"configurable": {"thread_id": 1}}
 
 cv_manager = CVEmbeddingManager()
-cv_manager.embed_and_store_cv("CV_IA.pdf")
+cv_manager.embed_and_store_cv("docs/CV_IA.pdf")
 retriever = cv_manager.get_retriever(k=3)
 
 def extract_cv_content(state: State):
@@ -159,7 +158,46 @@ def ask_info_about_job(state: State):
     job_info = input("Proporciona información sobre el trabajo al que te postulas, puedes copiar y pegar desde la propia pagina web: ")
         
     print(f"Información del trabajo recibida: {job_info}")
-    # return "create_summary"
+    return {
+        "job_info": job_info,
+        "messages": state["messages"] + [HumanMessage(content=f"Información del trabajo recibida: {job_info[:100]}...")]
+    }
+
+def analyze_cv_job_compatibility(state: State):
+    """Analiza la compatibilidad entre el CV y la oferta laboral"""
+    print("6. Analizar compatibilidad CV-Trabajo")
+    cv_content = state["cv_content"]
+    job_info = state["job_info"]
+    
+    compatibility_prompt = f"""
+    Analiza la compatibilidad entre este CV y la oferta laboral:
+    
+    CV DEL CANDIDATO:
+    {cv_content}
+    
+    OFERTA LABORAL:
+    {job_info}
+    
+    Proporciona un análisis que incluya:
+    1. Porcentaje de compatibilidad (0-100%)
+    2. Habilidades que coinciden
+    3. Experiencia relevante encontrada
+    4. Requisitos que NO cumple
+    5. Sugerencias específicas para mejorar el CV para esta posición
+    6. Recomendación final (POSTULAR/MEJORAR_CV/NO_COMPATIBLE)
+    
+    Sé específico y constructivo.
+    """
+    
+    response = llm.invoke([HumanMessage(content=compatibility_prompt)], config=thread_config)
+    analysis = response.content
+
+    print("Análisis de compatibilidad:", analysis)
+    
+    return {
+        "compatibility_analysis": analysis,
+        "messages": state["messages"] + [AIMessage(content=f"Análisis de compatibilidad:\n{analysis}")]
+    }
 
 workflow = StateGraph(State)
 
@@ -169,11 +207,14 @@ workflow.add_node("provide_feedback", provide_feedback)
 workflow.add_node("person_is_postuled_to_job", person_is_postuled_to_job)
 workflow.add_node("ask_info_about_job", ask_info_about_job)
 workflow.add_node("create_summary", create_cv_summary)
+workflow.add_node("analyze_compatibility", analyze_cv_job_compatibility)
 
 workflow.set_entry_point("extract_content")
 workflow.add_edge("extract_content", "validate_structure")
 workflow.add_conditional_edges("validate_structure", route_after_validation)
 workflow.add_conditional_edges("person_is_postuled_to_job", route_after_postuling_to_job)
+workflow.add_edge("ask_info_about_job", "analyze_compatibility")
+workflow.add_edge("analyze_compatibility", END)
 workflow.add_edge("provide_feedback", END)
 workflow.add_edge("create_summary", END)
 
@@ -202,3 +243,5 @@ if __name__ == "__main__":
         print(f"✅ CV válido - Resumen generado:\n{result['summary']}")
     else:
         print(f"❌ CV necesita mejoras - Retroalimentación:\n{result['feedback']}")
+    print("-"*20)
+    print(result)
