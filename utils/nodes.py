@@ -122,11 +122,11 @@ def route_after_validation(state: State):
 def person_is_postuled_to_job(state: State):
     """Simula que una persona se postula a un trabajo"""
     print("4. Verificar si la persona está postulando a un trabajo")
-    decision = input("¿Estás postulando a un trabajo? (si/no): ").strip().lower()
+    decision = state["person_is_postuled_to_job"]
     print("Decisión de postulación:", decision)
-    print(decision == "si")
     return {
-        "person_is_postuled_to_job": decision == "si",
+        "person_is_postuled_to_job": decision,
+        # "person_is_postuled_to_job": decision == "si",
         "messages": state["messages"] + [HumanMessage(content="Verificando si la persona está postulando a un trabajo...")]
     }
 
@@ -143,7 +143,7 @@ def route_after_postuling_to_job(state: State):
 def ask_info_about_job(state: State):
     """Solicita información sobre el trabajo al que se postula"""
     print("5. Solicitar información sobre el trabajo al que se postula")
-    job_info = input("Proporciona información sobre el trabajo al que te postulas, puedes copiar y pegar desde la propia pagina web: ")
+    job_info = state["job_info"]
         
     print(f"Información del trabajo recibida: {job_info}")
     return {
