@@ -1,4 +1,4 @@
-from typing import TypedDict, Annotated
+from typing import TypedDict, Annotated, Optional
 from langgraph.graph import add_messages
 
 class State(TypedDict):
@@ -7,5 +7,5 @@ class State(TypedDict):
     is_cv_valid: bool
     feedback: str
     summary: str
-    person_is_postuled_to_job: bool
-    job_info: str
+    person_is_postuled_to_job: Optional[bool]
+    job_info: Optional[str]

@@ -8,5 +8,6 @@ INITIAL_STATE = {
     "is_cv_valid": False,
     "feedback": "",
     "summary": "",
-    "person_is_postuled_to_job": False
+    "person_is_postuled_to_job": False,
+    "job_info": ""
 }
