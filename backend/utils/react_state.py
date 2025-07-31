@@ -9,3 +9,4 @@ class State(TypedDict):
     summary: str
     person_is_postuled_to_job: Optional[bool]
     job_info: Optional[str]
+    compatibility_analysis: Optional[str]
