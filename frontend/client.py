@@ -1,10 +1,7 @@
 import streamlit as st
 import requests
-import json
 import tempfile
-import os
 from typing import Optional
-import io
 
 # Configuración de la página
 st.set_page_config(
