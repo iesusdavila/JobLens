@@ -7,15 +7,16 @@ from utils.config import THREAD_CONFIG
 
 load_dotenv()
 
-cv_manager = CVEmbeddingManager()
-cv_manager.embed_and_store_cv("docs/CV_IA.pdf")
-retriever = cv_manager.get_retriever(k=3)
-
 llm = ChatGroq(model="llama-3.1-8b-instant")
 
 def extract_cv_content(state: State):
     """Extrae el contenido completo del CV usando el retriever"""
     print("1. Extraer contenido del CV")
+
+    cv_manager = CVEmbeddingManager()
+    cv_manager.embed_and_store_cv(state["cv_file_path"])
+    retriever = cv_manager.get_retriever(k=3)
+    
     docs = retriever.invoke("curriculum vitae experiencia educación habilidades")
     cv_text = "\n".join([doc.page_content for doc in docs])
     

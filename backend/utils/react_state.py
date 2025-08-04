@@ -10,3 +10,4 @@ class State(TypedDict):
     person_is_postuled_to_job: Optional[bool]
     job_info: Optional[str]
     compatibility_analysis: Optional[str]
+    cv_file_path: str

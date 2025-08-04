@@ -1,6 +1,8 @@
 import streamlit as st
 import requests
 import json
+import tempfile
+import os
 from typing import Optional
 import io
 
@@ -13,11 +15,12 @@ st.set_page_config(
 
 API_URL = "http://localhost:8000/joblens/invoke"
 
-def send_request(person_is_postuled_to_job: bool, job_info: Optional[str] = None) -> dict:
+def send_request(cv_file_path: str, person_is_postuled_to_job: bool, job_info: Optional[str] = None) -> dict:
     payload = {
         "input": {
             "person_is_postuled_to_job": person_is_postuled_to_job,
-            "job_info": job_info if job_info else ""
+            "job_info": job_info if job_info else "",
+            "cv_file_path": cv_file_path
         },
         "config": {},
         "kwargs": {
@@ -48,16 +51,24 @@ def main():
             type=['pdf', 'doc', 'docx', 'txt'],
             help="Formats supported: PDF, DOC, DOCX, TXT"
         )
+
+        file_path = ""
         
         if uploaded_file:
             st.success(f"File loaded: {uploaded_file.name}")
+
+            with tempfile.NamedTemporaryFile(delete=False, suffix=f"_{uploaded_file.name}") as tmp_file:
+                tmp_file.write(uploaded_file.getvalue())
+                file_path = tmp_file.name
+            
             file_details = {
                 "Name": uploaded_file.name,
                 "Type": uploaded_file.type,
-                "Size": f"{uploaded_file.size} bytes"
+                "Size": f"{uploaded_file.size} bytes",
+                "Path": file_path
             }
             st.json(file_details)
-        
+                
         st.markdown("---")
         
         st.subheader("2. State of Job Search")
@@ -93,7 +104,7 @@ def main():
         
         if analyze_button and uploaded_file:
             with st.spinner("Analyzing your CV..."):
-                response = send_request(is_looking_for_job, job_description)
+                response = send_request(file_path, is_looking_for_job, job_description)
                 
                 if response:
                     st.success("Analysis completed successfully!")

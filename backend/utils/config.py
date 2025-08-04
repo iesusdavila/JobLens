@@ -9,5 +9,6 @@ INITIAL_STATE = {
     "feedback": "",
     "summary": "",
     "person_is_postuled_to_job": False,
-    "job_info": ""
+    "job_info": "",
+    "cv_file_path": ""
 }

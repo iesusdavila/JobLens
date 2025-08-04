@@ -8,11 +8,13 @@ from utils.config import THREAD_CONFIG, INITIAL_STATE
 def simple_llm_wrapper(info: dict):
     person_is_postuled_to_job = info.get("person_is_postuled_to_job", True)
     job_info = info.get("job_info", None)
+    cv_file_path = info.get("cv_file_path", "")
 
     state = {
         **INITIAL_STATE,
         "person_is_postuled_to_job": person_is_postuled_to_job,
-        "job_info": job_info
+        "job_info": job_info,
+        "cv_file_path": cv_file_path
     }
     return app.invoke(state, config=THREAD_CONFIG)
 
