@@ -5,8 +5,8 @@ from typing import Optional
 
 # Configuración de la página
 st.set_page_config(
-    page_title="JobLens - Análisis de CV",
-    page_icon="📄",
+    page_title="JobLens - Analysis CV",
+    page_icon="",
     layout="wide"
 )
 
