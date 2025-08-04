@@ -65,7 +65,6 @@ def main():
                 "Name": uploaded_file.name,
                 "Type": uploaded_file.type,
                 "Size": f"{uploaded_file.size} bytes",
-                "Path": file_path
             }
             st.json(file_details)
                 
