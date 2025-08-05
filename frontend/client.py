@@ -4,6 +4,8 @@ import tempfile
 from typing import Optional
 
 # Configuración de la página
+st.config.set_option('server.port', 8501)
+
 st.set_page_config(
     page_title="JobLens - Analysis CV",
     page_icon="",
@@ -42,7 +44,7 @@ def main():
     with col1:
         st.header("Configuration")
         
-        st.subheader("1. Seleccionar CV")
+        st.subheader("1. Upload Your CV")
         uploaded_file = st.file_uploader(
             "Selecciona tu CV",
             type=['pdf', 'doc', 'docx', 'txt'],
