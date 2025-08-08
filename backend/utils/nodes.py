@@ -4,6 +4,7 @@ from langchain_core.messages import AIMessage, HumanMessage
 from langchain_groq import ChatGroq
 from dotenv import load_dotenv
 from utils.config import THREAD_CONFIG
+import json
 
 load_dotenv()
 
@@ -44,15 +45,22 @@ def validate_cv_structure(state: State):
     4. Habilidades técnicas o competencias
     5. Estructura clara y coherente
     
-    Responde únicamente con "VÁLIDO" si cumple con TODOS los criterios de forma obligatoria, 
-    o "INCOMPLETO" si le falta cualquiera de los criterios mencionados. Tienes que ser muy estricto en la evaluación.
+    Responde UNICAMENETE en este formato JSON:
+    {{
+        "is_cv_valid": true/false,
+    }}
     """
 
     response = llm.invoke([HumanMessage(content=validation_prompt)], config=THREAD_CONFIG)
-    is_valid = "VÁLIDO" in response.content.upper()
+
+    try:
+        result = json.loads(response.content.strip())
+        is_cv_valid = result.get("is_cv_valid", False)
+    except:
+        is_cv_valid = False
     
     return {
-        "is_cv_valid": is_valid,
+        "is_cv_valid": is_cv_valid,
         "cv_content": cv_content,
         "messages": state["messages"]
     }
