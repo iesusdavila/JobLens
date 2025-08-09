@@ -44,16 +44,16 @@ JobLens is an intelligent CV analysis platform that leverages advanced AI techno
 
 ```mermaid
 graph TB
-    A[Streamlit Frontend] --> B[FastAPI Backend]
-    B --> C[LangGraph State Manager]
-    C --> D[CV Analysis Workflow]
-    C --> E[CV Improvement Workflow]
-    D --> F[Vector Store Manager]
-    F --> G[FAISS Index]
-    D --> H[Groq LLM]
-    E --> H
-    H --> I[Analysis Results]
-    I --> A
+    A[Start] --> B[Extract CV Content]
+    B --> C[Validate CV Structure]
+    C --> |Yes| D[Is Applying for a Job?]
+    C --> |No| E[Provide Feedback]
+    D --> |Yes| F[Ask Info about Job]
+    D --> |No| H[Create Summary]
+    F --> G[Analyze Compatibility]
+    E --> I[End]
+    H --> I
+    G --> I
 ```
 
 ## 📋 Prerequisites
